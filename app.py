@@ -26,7 +26,7 @@ def get_data():
     #get data
     lat = -6.1753942  #jkt coordinate
     lon = 106.827183
-    API_key = "f3912448b9db8896cbef28b420967a9b" #api_key
+    API_key = st.secrets["api_key"] #api_key
     start_date = 1483203600 #01/01/2017 00:00:00
     end_date = int(time.mktime(datetime.now().timetuple()))
     url = f'http://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat}&lon={lon}&start={start_date}&end={end_date}&appid={API_key}'
