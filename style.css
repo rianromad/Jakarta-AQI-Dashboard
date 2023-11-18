@@ -26,6 +26,9 @@
     background-color: #AD0000;
     font-weight: bolder;
     color: white;
+    padding:5px;
+    border-radius:5px;
+    background-color:#800016;
 } 
 
 div.element-container:nth-child(14) > div:nth-child(1) > div:nth-child(1) > p:nth-child(1){
