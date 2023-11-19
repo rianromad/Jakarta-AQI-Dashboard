@@ -173,7 +173,7 @@ with pollutant:
 
 with freq:
    #daily: D, day of week: create dow column -> groupby dow, day of month: create dom column -> groupby
-   freq_list = ['Realtime','Last 24 Hours','Hourly Grouped','Daily Grouped','Day of Week Grouped','Monthly Grouped']
+   freq_list = ['Realtime','Last 24 Hours','Grouped by Hour','Grouped by Day','Grouped by Day of Week','Grouped by Month']
    freq_opt = st.selectbox("Line Chart Frequency", freq_list,index=2)
 
 with line_title:
@@ -197,14 +197,14 @@ if freq_opt=='Last 24 Hours':
     st.plotly_chart(fig, use_container_width=True)
 
 #daily
-elif freq_opt=='Daily Grouped':
+elif freq_opt=='Grouped by Day':
     df3 = df2[[pol_opt,'datetime']].resample('D',on='datetime').mean().round(2).reset_index()
     df3 = df3.rename(columns={'datetime':'Date'})
     fig = line_chart(df3, 'Date',pol_opt,"Date")
     st.plotly_chart(fig, use_container_width=True)
 
 #hourly
-elif freq_opt=='Hourly Grouped':
+elif freq_opt=='Grouped by Hour':
     df3 = df2[[pol_opt,'datetime']]
     df3['Hour'] = df3['datetime'].dt.hour
     df3 = df3[[pol_opt,'Hour']].groupby('Hour').mean().round(2).reset_index()
@@ -212,7 +212,7 @@ elif freq_opt=='Hourly Grouped':
     st.plotly_chart(fig, use_container_width=True)
 
 #day of week
-elif freq_opt=='Day of Week Grouped':
+elif freq_opt=='Grouped by Day of Week':
     df3 = df2[[pol_opt,'datetime']]
     df3['Day Name'] = df3['datetime'].dt.day_name()
     df3['day'] = df3['datetime'].dt.dayofweek
@@ -221,7 +221,7 @@ elif freq_opt=='Day of Week Grouped':
     st.plotly_chart(fig, use_container_width=True)
 
 #monthly
-elif freq_opt=='Monthly Grouped':
+elif freq_opt=='Grouped by Month':
     df3 = df2[[pol_opt,'datetime']]
     df3['Month Year'] = df3['datetime'].dt.strftime('%Y-%m')
     df3 = df3[[pol_opt,'Month Year']].groupby(['Month Year']).mean().round(2).reset_index()
