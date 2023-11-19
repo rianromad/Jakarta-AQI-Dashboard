@@ -236,7 +236,7 @@ else:
 
 #pivot table (heatmap)
 st.markdown("\n")
-st.markdown(f"### Average Concentration of {pol_opt} Grouped by Hour and Day")
+st.markdown(f"### Average Concentration of {pol_opt} Grouped by Hour and Day of Week")
 
 df3 = df2[[pol_opt,'datetime']]
 df3['Hour'] = df3['datetime'].dt.hour
