@@ -20,7 +20,7 @@ st.set_page_config(
 with open('style.css')as f:
  st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html = True)
 
-@st.cache_data(ttl="2h", persist="disk")
+@st.cache_data(ttl="2h", persist=False)
 def get_data():
 
     #get data
