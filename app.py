@@ -167,78 +167,109 @@ st.markdown('\n')
 
 line_title, pollutant, freq = st.columns([3,1,1])
 
-with pollutant:
-   pollutant_list = ['CO', 'NO', 'NO2', 'O3','SO2', 'PM2.5', 'PM10', 'NH3']
-   pol_opt = st.selectbox('Select Pollutant',pollutant_list, index=5) 
-
-with freq:
-   #daily: D, day of week: create dow column -> groupby dow, day of month: create dom column -> groupby
-   freq_list = ['Realtime','Last 24 Hours','Grouped by Hour','Grouped by Day','Grouped by Day of Week','Grouped by Month']
-   freq_opt = st.selectbox("Line Chart Frequency", freq_list,index=2)
-
-with line_title:
-   st.markdown(f'### Line Chart of {pol_opt} ({freq_opt})')
+tres = {'CO':12400, 'NO':100, 'NO2':150, 'O3':140,'SO2':250, 'PM2.5':50, 'PM10':100, 'NH3':200}
 
 #line chart
-def line_chart(df,x,y,xlabel):
+def line_chart(df,x,y,xlabel,treshold):
     fig = px.line(df, x=x,y=y, markers=True, color_discrete_sequence=['#800016'])
     fig.update_layout(xaxis_title=None, plot_bgcolor='#FFFBFB',margin=dict(l=0,r=0,b=0,t=20), height=380)
     #fig.layout.xaxis.fixedrange = True
-    fig.layout.yaxis.fixedrange = True
+    #fig.layout.yaxis.fixedrange = True
     fig.update_yaxes(title=f'Concentration of {y} (μg/m3)', gridcolor='#C46B6B',title_font=dict(size=18),tickfont_size=15)
     fig.update_xaxes(title=xlabel,title_font=dict(size=18), tickfont_size=15)
+    
+    #poor limit
+    #fig.add_hrect(y0=treshold, y1=df[y].max()+10, line_width=0, fillcolor="#FFD7DE", opacity=0.3, layer='below')
+    
+    fig.add_hline(y=treshold,
+              line_dash='dash', 
+              line_color='black', 
+              annotation_text= f'Poor limit of {y} = {treshold} μg/m3',
+              annotation_position='top right', 
+              annotation_font_color='black',
+              annotation_bgcolor="white")
 
     return fig
 
 #last 24 hours
 if freq_opt=='Last 24 Hours':
     df3 = df2[df2['datetime'].dt.date == df2['datetime'].dt.date.iloc[-1]][[pol_opt,'datetime']].rename(columns={'datetime':'Date Time'})
-    fig = line_chart(df3, 'Date Time',pol_opt,"Hour")
+    #replace negative outlier with 0
+    pol = df3._get_numeric_data()
+    pol[pol<0] = 0
+
+    fig = line_chart(df3, 'Date Time',pol_opt,"Hour", tres[pol_opt])
     st.plotly_chart(fig, use_container_width=True)
 
 #daily
-elif freq_opt=='Grouped by Day':
-    df3 = df2[[pol_opt,'datetime']].resample('D',on='datetime').mean().round(2).reset_index()
+elif freq_opt=='Daily Grouped':
+    df3 = df2[[pol_opt,'datetime']]
+    #replace negative outlier with 0
+    pol = df3._get_numeric_data()
+    pol[pol<0] = 0
+
+    df3 =  df3.resample('D',on='datetime').mean().round(2).reset_index()
     df3 = df3.rename(columns={'datetime':'Date'})
-    fig = line_chart(df3, 'Date',pol_opt,"Date")
+    fig = line_chart(df3, 'Date',pol_opt,"Date", tres[pol_opt])
     st.plotly_chart(fig, use_container_width=True)
 
 #hourly
-elif freq_opt=='Grouped by Hour':
+elif freq_opt=='Hourly Grouped':
     df3 = df2[[pol_opt,'datetime']]
+    #replace negative outlier with 0
+    pol = df3._get_numeric_data()
+    pol[pol<0] = 0
+
     df3['Hour'] = df3['datetime'].dt.hour
     df3 = df3[[pol_opt,'Hour']].groupby('Hour').mean().round(2).reset_index()
-    fig = line_chart(df3,'Hour',pol_opt,"Hour")
+    fig = line_chart(df3,'Hour',pol_opt,"Hour", tres[pol_opt])
     st.plotly_chart(fig, use_container_width=True)
 
 #day of week
-elif freq_opt=='Grouped by Day of Week':
+elif freq_opt=='Day of Week Grouped':
     df3 = df2[[pol_opt,'datetime']]
+    #replace negative outlier with 0
+    pol = df3._get_numeric_data()
+    pol[pol<0] = 0
+
     df3['Day Name'] = df3['datetime'].dt.day_name()
     df3['day'] = df3['datetime'].dt.dayofweek
     df3 = df3[[pol_opt,'Day Name','day']].groupby(['day','Day Name']).mean().round(2).reset_index().sort_values('day',ascending=True)
-    fig= line_chart(df3, 'Day Name', pol_opt,"Day of Week")
+    fig= line_chart(df3, 'Day Name', pol_opt,"Day of Week", tres[pol_opt])
     st.plotly_chart(fig, use_container_width=True)
 
 #monthly
-elif freq_opt=='Grouped by Month':
+elif freq_opt=='Monthly Grouped':
     df3 = df2[[pol_opt,'datetime']]
+    #replace negative outlier with 0
+    pol = df3._get_numeric_data()
+    pol[pol<0] = 0
+    
     df3['Month Year'] = df3['datetime'].dt.strftime('%Y-%m')
     df3 = df3[[pol_opt,'Month Year']].groupby(['Month Year']).mean().round(2).reset_index()
-    fig= line_chart(df3, 'Month Year', pol_opt,"Year Month")
+    fig= line_chart(df3, 'Month Year', pol_opt,"Year Month", tres[pol_opt])
     st.plotly_chart(fig, use_container_width=True)
 
 #realtime
 else:
-    df3 = df2[[pol_opt,'datetime']].rename(columns={'datetime':'Datetime'})
-    fig= line_chart(df3, 'Datetime', pol_opt,"Datetime")
+    df3 = df2[[pol_opt,'datetime']]
+    #replace negative outlier with 0
+    pol = df3._get_numeric_data()
+    pol[pol<0] = 0
+
+    df3 = df3.rename(columns={'datetime':'Datetime'})
+    fig= line_chart(df3, 'Datetime', pol_opt,"Datetime", tres[pol_opt])
     st.plotly_chart(fig, use_container_width=True)
 
 #pivot table (heatmap)
 st.markdown("\n")
-st.markdown(f"### Average Concentration of {pol_opt} Grouped by Hour and Day of Week")
+st.markdown(f"### Average Concentration of {pol_opt} Grouped by Hour and Day")
 
 df3 = df2[[pol_opt,'datetime']]
+#replace negative outlier with 0
+pol = df3._get_numeric_data()
+pol[pol<0] = 0
+
 df3['Hour'] = df3['datetime'].dt.hour
 df3['Day of Week'] = df3['datetime'].dt.day_name()
 pivot = pd.pivot_table(df3, values=pol_opt, columns="Hour", index="Day of Week", aggfunc='mean').round(2)
