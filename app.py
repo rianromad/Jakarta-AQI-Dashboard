@@ -167,6 +167,18 @@ st.markdown('\n')
 
 line_title, pollutant, freq = st.columns([3,1,1])
 
+with pollutant:
+   pollutant_list = ['CO', 'NO', 'NO2', 'O3','SO2', 'PM2.5', 'PM10', 'NH3']
+   pol_opt = st.selectbox('Select Pollutant',pollutant_list, index=5) 
+
+with freq:
+   #daily: D, day of week: create dow column -> groupby dow, day of month: create dom column -> groupby
+   freq_list = ['Realtime','Last 24 Hours','Hourly Grouped','Daily Grouped','Day of Week Grouped','Monthly Grouped']
+   freq_opt = st.selectbox("Line Chart Frequency", freq_list,index=2)
+
+with line_title:
+   st.markdown(f'### Line Chart of {pol_opt} ({freq_opt})')
+
 tres = {'CO':12400, 'NO':100, 'NO2':150, 'O3':140,'SO2':250, 'PM2.5':50, 'PM10':100, 'NH3':200}
 
 #line chart
