@@ -173,7 +173,7 @@ with pollutant:
 
 with freq:
    #daily: D, day of week: create dow column -> groupby dow, day of month: create dom column -> groupby
-   freq_list = ['Realtime','Last 24 Hours','Hourly Grouped','Daily Grouped','Day of Week Grouped','Monthly Grouped']
+   freq_list = ['Realtime','Last 24 Hours','Grouped by Hour','Grouped by Day','Grouped by Day of Week','Grouped by Month']
    freq_opt = st.selectbox("Line Chart Frequency", freq_list,index=2)
 
 with line_title:
@@ -214,7 +214,7 @@ if freq_opt=='Last 24 Hours':
     st.plotly_chart(fig, use_container_width=True)
 
 #daily
-elif freq_opt=='Daily Grouped':
+elif freq_opt=='Grouped by Day':
     df3 = df2[[pol_opt,'datetime']]
     #replace negative outlier with 0
     pol = df3._get_numeric_data()
@@ -226,7 +226,7 @@ elif freq_opt=='Daily Grouped':
     st.plotly_chart(fig, use_container_width=True)
 
 #hourly
-elif freq_opt=='Hourly Grouped':
+elif freq_opt=='Grouped by Hour':
     df3 = df2[[pol_opt,'datetime']]
     #replace negative outlier with 0
     pol = df3._get_numeric_data()
@@ -238,7 +238,7 @@ elif freq_opt=='Hourly Grouped':
     st.plotly_chart(fig, use_container_width=True)
 
 #day of week
-elif freq_opt=='Day of Week Grouped':
+elif freq_opt=='Grouped by Day of Week':
     df3 = df2[[pol_opt,'datetime']]
     #replace negative outlier with 0
     pol = df3._get_numeric_data()
@@ -251,7 +251,7 @@ elif freq_opt=='Day of Week Grouped':
     st.plotly_chart(fig, use_container_width=True)
 
 #monthly
-elif freq_opt=='Monthly Grouped':
+elif freq_opt=='Grouped by Month':
     df3 = df2[[pol_opt,'datetime']]
     #replace negative outlier with 0
     pol = df3._get_numeric_data()
