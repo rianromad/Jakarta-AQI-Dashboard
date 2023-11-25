@@ -196,7 +196,7 @@ def line_chart(df,x,y,xlabel,treshold):
     fig.add_hline(y=treshold,
               line_dash='dash', 
               line_color='black', 
-              annotation_text= f'Poor treshold of {y} = {treshold} μg/m3',
+              annotation_text= f'Poor limit of {y} = {treshold} μg/m3',
               annotation_position='top right', 
               annotation_font_color='black',
               annotation_bgcolor="white")
